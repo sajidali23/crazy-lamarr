@@ -13,18 +13,20 @@ const EventProvider = ({ children }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedLocation, setSelectedLocation] = useState("");
   const [selectedDate, setSelectedDate] = useState("");
+  const [selectedType, setSelectedType] = useState("");
 
   const [appliedFilters, setAppliedFilters] = useState({
     searchTerm: "",
     selectedLocation: "",
     selectedDate: null,
+    selectedType,
   });
 
   const filteredEvents = useMemo(() => {
-    const today = new Date()
+    const today = new Date();
     return events.filter((event) => {
       const eventDate = new Date(event.date);
-      if(eventDate < today) return false;
+      if (eventDate < today) return false;
 
       const matchesSearch = appliedFilters.searchTerm
         ? event.title
@@ -37,9 +39,14 @@ const EventProvider = ({ children }) => {
           appliedFilters.selectedLocation.toLowerCase()
         : true;
 
-        const matchesDate = appliedFilters.selectedDate ? eventDate.toDateString() === new Date(appliedFilters.selectedDate).toDateString() : true;
+      const matchesDate = appliedFilters.selectedDate
+        ? eventDate.toDateString() ===
+          new Date(appliedFilters.selectedDate).toDateString()
+        : true;
+      
+      const matchesType = appliedFilters.selectedType ? event.type.toLowerCase() === appliedFilters.selectedType.toLowerCase() : true;
 
-      return matchesSearch && matchesLocation && matchesDate;
+      return matchesSearch && matchesLocation && matchesDate && matchesType;
     });
   }, [events, appliedFilters]);
 
@@ -63,7 +70,12 @@ const EventProvider = ({ children }) => {
   const handleSubmit = () => {
     setIsLoading(true);
     setShowEventList(true);
-    setAppliedFilters({ searchTerm, selectedLocation, selectedDate });
+    setAppliedFilters({
+      searchTerm,
+      selectedLocation,
+      selectedDate,
+      selectedType,
+    });
     setTimeout(() => {
       setIsLoading(false);
     }, 2500);
@@ -74,6 +86,7 @@ const EventProvider = ({ children }) => {
     setShowEventList(false);
     setSelectedLocation("");
     setSelectedDate(null);
+    setSelectedType("");
   };
 
   return (
@@ -92,6 +105,8 @@ const EventProvider = ({ children }) => {
         setSelectedLocation,
         selectedDate,
         setSelectedDate,
+        selectedType,
+        setSelectedType,
       }}
     >
       {children}
